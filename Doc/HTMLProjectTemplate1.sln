@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Web Developer Express 2010
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "HTMLProjectTemplate1", "HTMLProjectTemplate1\", "{3BB0A0D4-634A-486A-A18D-86286E2BA835}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/HTMLProjectTemplate1"
+		Debug.AspNetCompiler.PhysicalPath = "HTMLProjectTemplate1\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\HTMLProjectTemplate1\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/HTMLProjectTemplate1"
+		Release.AspNetCompiler.PhysicalPath = "HTMLProjectTemplate1\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\HTMLProjectTemplate1\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "52390"
+		DefaultWebSiteLanguage = "Visual Basic"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3BB0A0D4-634A-486A-A18D-86286E2BA835}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BB0A0D4-634A-486A-A18D-86286E2BA835}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

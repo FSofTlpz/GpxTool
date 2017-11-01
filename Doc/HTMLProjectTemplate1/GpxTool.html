@@ -1,0 +1,396 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+  <meta content="text/html; charset=iso-8859-2" http-equiv="Content-Type"><title>GpxTool</title>
+  <style type="text/css">
+body {
+  font-family: Arial,sans-serif;
+  font-size: 10pt;
+  color: #000000;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+h1 {
+  font-size: 20pt;
+  margin-top: 2pt;
+  color: #e00000;
+}
+h2 {
+  font-size: 16pt;
+  margin-top: 2pt;
+}
+h3 {
+  font-size: 14pt;
+  margin-top: 2pt;
+}
+h4 {
+  font-size: 12pt;
+  margin-top: 2pt;
+}
+p, ul, ol, li, div, td, th, address, nobr, b, i {
+  font-size: 10pt;
+  margin-top: 3pt;
+  margin-bottom: 0;
+}
+p.beispiel {
+  font-style: italic;
+  font-weight: bold;
+}
+pre, tt {
+  font-family: Courier New,Courier;
+  font-size: 10pt;
+}
+.funccapt {
+  border-top: 0.5mm solid #330099;
+  font-family: Courier New,Courier,monospace;
+  background-color: #ccffff;
+  color: #330099;
+  display: block;
+  padding-top: 3mm;
+  padding-bottom: 3mm;
+}
+.code {
+  border-style: solid;
+  border-width: 1pt;
+  padding: 1mm;
+  color: #993300;
+  margin-left: 5mm;
+  background-color: #fee7d0;
+}
+.code2 {
+  border-style: solid;
+  border-width: 1pt 3pt 3pt 1pt;
+  padding: 1mm;
+  color: #000099;
+  background-color: #ccccff;
+  margin-left: 10mm;
+  font-family: Courier New,Courier,monospace;
+}
+.speccaption1 {
+  border-width: 0;
+  padding: 1mm;
+  font-weight: bold;
+  background-color: #cccccc;
+}
+.funclist {
+  background-color: #ffffcc;
+} 
+     .auto-style1 {
+        width: 174px;
+     }
+  </style></head><body>
+<h1>Anwendung von GpxTool</h1>
+    <span style="font-style: italic;">(Version vom 17.7.2017)</span><br>
+
+<h2>Anwendung</h2>
+
+    <p>Mit dem Kommandozeilenprogramm können Informationen aus einer GPX-Datei 
+    geliefert werden und Manipulationen mit GPX-Dateien erfolgen. Die Steuerung 
+    erfolgt über die Angabe von Optionen und Parametern.</p>
+   <p>&nbsp;</p>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+
+  <tbody>
+    <tr>
+      <td class="auto-style1">-i,
+          --info=arg</td>
+      <td>Ausgabe von Waypoint-, Routen-, Track- und Segment-Infos auf STDOUT (Name, Länge 
+          usw.) (Standard: true)</td>
+    </tr>
+    <tr>
+      <td class="auto-style1">-n,
+          --name=arg</td>
+      <td>neuer Trackname (mehrfach verwendbar für Track 1 usw.)</td>
+    </tr>
+    <tr>
+      <td class="auto-style1">-o,
+          --output=arg</td>
+      <td>Name der Ausgabedatei für die (ev. veränderten) GPX-Daten</td>
+    </tr>
+    <tr>
+      <td class="auto-style1">-f, --formatted=arg</td>
+      <td>Ausgabe formatiert oder &#39;1-zeilig&#39; (Standard: true)</td>
+    </tr>
+     <tr>
+      <td class="auto-style1">-t,
+          --tracks=arg</td>
+      <td>Liste (mit Komma) der zu verwendenden Tracknummern (1, ...)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-r, --routes=arg</td>
+      <td>Liste (mit Komma) der zu verwendenden Routennummern (1, ...)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-p, --waypoints=arg</td>
+      <td>Liste (mit Komma) der zu verwendenden Waypoints (1, ...)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">--deletetime=arg</td>
+      <td>alle Zeitstempel werden aus den Trackpunkten entfernt</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">--deleteheight=arg</td>
+      <td>alle Höhenangaben werden aus den Trackpunkten entfernt</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-G,
+          --gapfill</td>
+      <td>fehlende Höhenwerte und Zeitstempel in den Trackpunkten werden nach Möglichkeit 
+          linear interpoliert (Standard: false)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-N, --newheigth=arg</td>
+      <td>alle Höhen werden in den Trackpunkten auf einen konstanten Wert gesetzt</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-s,
+          --simplify[=arg]</td>
+      <td>Vereinfachung der Tracks [mit Algorithmus Reumann-Witkam (RW) oder 
+          Douglas-Peucker (DP)] (Standard: keine)</td>
+      </tr>
+     <tr>
+      <td class="auto-style1">-w,
+          --width=arg</td>
+      <td>Breite des Toleranzbereiches für die Vereinfachung (Standard 0.05)</td>
+      </tr>
+     <tr>
+      <td class="auto-style1">-m, --maxspeed=arg</td>
+      <td>Punkte entfernen, die mit einer höheren Geschwindigkeit erreicht werden (in 
+          km/h; Standard: inaktiv)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-a, --restarea=arg</td>
+      <td>Werteliste (mit Komma) für die Pausenplatzeliminierung, z.B. 10,1,20,60,2,25,50 
+          (Standard: inaktiv)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">--restareaprot=arg</td>
+      <td>Name der Protokolldatei für die Pausenplatzeliminierung (liefert je Zeile den 
+          Original-Punktindex, die Anzahl der Polygonkreuzungen, den Radius des kleinsten 
+          Umkreises, den durchschnittlichen Abweichungswinkel und 1, wenn der Punkt 
+          gelöscht wurde)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-O,
+          --heightoutput=arg</td>
+      <td>Name der Ausgabedatei für die (ev. veränderten) Höhen-Daten in Abhängigkeit der 
+          jeweiligen Tracklänge</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">--minheight=arg</td>
+      <td>Minimalhöhe; alle kleineren Höhen werden damit ersetzt</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">--maxheight=arg</td>
+      <td>Maximalhöhe; alle größeren Höhen werden damit ersetzt</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-S, --heightsimplify[=arg]</td>
+      <td>Höhenprofil vereinfachen [mit Algorithmus SlidingIntegral (SI) oder SlidingMean (SM)];
+          setzt intern auch --gapfill</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-W,
+          --heightwidth=arg</td>
+      <td>Breite des Höhen-Integrationsbereiches in Metern (Standard 100)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-U,
+          --heightoutlierwidth=arg</td>
+      <td>Breite des Bereiches für die &#39;Ausreißer&#39;-Korrektur von Höhen (Standard 50m)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-A,
+          --maxascent=arg</td>
+      <td>max. gültiger An-/Abstieg in Prozent (Standard 25%)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">--filenametotrackname=arg</td>
+      <td>Tracknamen auf den Dateinamen setzen (Standard: false)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">-?,
+          --help</td>
+      <td>diese Hilfe</td>
+     </tr>
+  </tbody>
+</table>
+
+    <p>
+        Außerdem benötigt das Programm mindestens 1 Argument. Die Argumente sind die 
+        Dateinamen der zu verarbeitenden GPX-Dateien. Werden mehrere Dateien verwendet, 
+        werden diese vor der weiteren Verarbeitung zusammengefügt. Die Waypoints, Routen 
+        und Tracks sind dann entsprechend der Dateireihenfolge durchnummeriert. Enthält 
+        die erste und zweite Datei z.B. jeweils 2 Tracks, haben die Tracks der zweiten 
+        Datei dann die Nummern 3 und 4.</p>
+    <p class="beispiel">
+        Beispiel: GPX-Dateien verbinden</p>
+    <p class="code">
+        gpxtool --output=dest.gpx inp1.gpx inp2.gpx inp3.gpx</p>
+    <p>
+        Neue Tracknamen können folgendermaßen vergeben werden:</p>
+    <p class="beispiel">
+        Beispiel: Tracknamen ändern</p>
+    <p class="code">
+        gpxtool --name=&quot;Track 1&quot; --name=&quot;Track 2&quot; --output=dest.gpx inp1.gpx</p>
+    <p>
+        Die Menge der auszugebenden Wegpunkte, Routen oder Tracks kann eingeschränkt 
+        oder ganz verhindert werden.</p>
+    <p class="beispiel">
+        Beispiel: keine Wegpunkte und Routen ausgeben, nur Tracks 1 und 3 ausgeben</p>
+    <p class="code">
+        gpxtool --waypoints --routes --trakcks=1,3 --output=dest.gpx inp1.gpx</p>
+    <p>
+        Gibt es für einige Trackpunkte keine Höhenangaben und/oder keine Zeitangaben, 
+        können diese interpoliert werden. Das funktioniert nicht in jedem Fall. Bei der 
+        Vereinfachung des Höhenprofils wird diese Option automatisch gesetzt.</p>
+    <p class="beispiel">
+        Beispiel: fehlende Höhen- und/oder Zeitangaben interpolieren</p>
+    <p class="code">
+        gpxtool --gapfill --output=dest.gpx inp1.gpx</p>
+    <h2>
+        Trackvereinfachung und Beseitigung von Ausreißern</h2>
+    <p>
+        Tracks können mit 2 verschiedenen Algorithmen vereinfacht werden. Der 
+        Douglas-Peucker scheint i.A. die besseren Ergebnisse zu liefern und ist deshalb 
+        das Standardverfahren. Reumann-Witkam soll bei verschlungenen Tracks bessere 
+        Ergebnisse liefern.</p>
+    <p>
+        Bei Douglas-Peucker wird ausgehend vom ganzen Track rekursiv für immer kleinere 
+        Teilstrecken geprüft, ob die zwischen 2 Punkten liegenden Punkte alle innerhalb 
+        eines Toleranzbereiches (rechteckiger Streifen) befinden. Ist das der Fall, 
+        entfallen die inneren Punkte. Andernfalls werden mit den &quot;zu weit weg liegenden&quot; 
+        Punkten neue Teilstrecken gebildet und die Untersuchung wiederholt.</p>
+    <p>
+        Bei Reumann-Witkam werden iterativ alle Punktpaare (i, i+1) untersucht. Liegen 
+        direkt folgende Punkte i+2, ... innerhalb eines Toleranzbereiches (rechteckiger 
+        Streifen entsprechend der Punkte i und i+1), entfallen diese Punkte.</p>
+    <p>
+        Der entscheidende Parameter ist in jedem Fall die Breite des Toleranzbereiches. 
+        Intern ist er mit 0,05 vordefiniert und hat damit i.A. nur eine sehr geringe Auswirkung. Je breiter dieser Bereich ist, je stärker 
+        wird ein Track vereinfacht. Problematisch sind in jedem Fall einzelne 
+        &quot;Ausreisser&quot;. Diese mit der Vereinfachung natürlich <strong>nicht </strong>
+        beseitigt und sollten vorher mit einem Editor für GPX-Tracks entfernt werden.</p>
+    <p class="beispiel">
+        Beispiel: Trackvereinfachung</p>
+    <p class="code">
+        rem ===== Douglas-Peucker mit 0,05<br />
+        gpxtool --simplify --output=dest.gpx inp1.gpx<br />
+        rem ===== Reumann-Witkam mit 4,2<br />
+        gpxtool --simplify=RW --width=4.2 --output=dest.gpx inp1.gpx</p>
+    <p>
+        Einzelne Ausreißer (fehlerhafte Messungen) verraten sich manchmal dadurch, dass 
+        sich für das Teilstück zum vorhergehenden Punkt eine deutlich höhere 
+        Geschwindigkeit ergibt. Man kann einen Grenzwert für die erlaubte Geschwindgkeit 
+        angeben. Punkte die mit höherer Geschwindgkeit erreicht werden, werden entfernt.</p>
+    <p class="code">
+        rem ===== 
+        max. erlaubte Geschwindgkeit 10,5km/h<br />
+        gpxtool --maxspeed=10.5</p>
+    <h2>
+        Rastplatzerkennung</h2>
+    <p>
+        Experimentell ist die &quot;Rastplatz&quot;-Vereinfachung. Damit sollen i.W. Teile im 
+        Track entfernt werden, die keine reale Bewegung darstellen. Während einer 
+        längeren Rast zeichnet ein GPS-Gerät z.B. weitere Punkte auf, die sehr nahe am 
+        Rastplatz liegen. Das können in ungünstigen Fällen mehrere 100 Meter sein.</p>
+    <p>
+        Als Parameter wird ein Liste von natürlichen Zahlen benötigt: 
+        p,k1,r1,g1,k2,r2,g2. Mit der Punkanzahl p wird die Länge des jeweils 
+        untersuchten Track-Teilstückes angegeben. K1 und k2 geben jeweils eine Anzahl 
+        vor, wie oft sich dieses Teilstück mit sich selbst kreuzt.K1 bedeutet dabei &quot;k1 
+        bis k2-1 Kreuzungen&quot;, k2 bedeutet &quot;k2 oder mehr Kreuzungen&quot;. Je nach Anzahl der 
+        gefundenen Kreuzungen müssen alle p Punkte eine durchschnittliche Änderung der 
+        Bewegungsrichtung (jeweils von Punkt zu Punkt) mit dem Mindestwert g1 bzw. g2 
+        haben und sie müssen alle in einen Kreis mit dem Radius r1 bzw. r2 passen.</p>
+    <p>
+        Im folgenden Beispiel bedeutet die Parameterliste:</p>
+    <ul>
+        <li>Ein Teilstück des Tracks ist 10 Punkte lang. (p)</li>
+        <li>Es muss mindestens 1 Kreuzung vorhanden sein (k1)</li>
+        <li>Der Radius des Umkreises darf höchsten 18m sein (r1)</li>
+        <li>Die durchschnittliche Änderung der Bewegungsrichtung muss mindestens 60° sein 
+            (g1)</li>
+        <li>Es müssen mindestens 2 Kreuzungen vorhanden sein (k2).</li>
+        <li>Der Radius des Umkreises darf höchsten 25m sein (r2)</li>
+        <li>Die durchschnittliche Änderung der Bewegungsrichtung muss mindestens 50° sein 
+            (g2)</li>
+    </ul>
+    <p>
+        Wenn diese Bedingungen zutreffen, werden alle p Punkte bis auf einen gelöscht. 
+        Es bleibt nur der Punkt erhalten, der am dichtesten am Mittelpunkt des 
+        zutreffenden Umkreises liegt.</p>
+    <p>
+        <strong><em>Beispiel: Rastplatzerkennung</em></strong></p>
+    <p class="code">
+        gpxtool --restarea=10,1,18,60,2,25,50</p>
+    <h2>
+        Höhenglättung und Beseitigung von Ausreißern</h2>
+    <p>
+        Die Höhenangaben von Tracks können &quot;geglättet&quot; werden. Dafür stehen 2 Verfahren 
+        zur Verfügung: SlidingIntegral und SlidingMean.</p>
+    <p>
+        Bei SlidingMean wird für jeden Punkt der gleitende Mittelwert der Höhen der 
+        benachbarten Punkte gebildet. Dabei wird auch die jeweilige Streckenlänge mit 
+        einbezogen (gewichtet). Die Anzahl der einzubeziehenden Punkte ist der 
+        entscheidende Parameter. Bei einer geradzahligen Anzahl wird wird vor dem zu 
+        berechnenden Punkt ein Punkt mehr berücksichtigt als nach diesem Punkt.</p>
+    <p>
+        Bei SlidingIntegral wird die Höhe für einen Punkt als durchschnittliche Höhe in 
+        einem Entfernungsbereich um diesen Punkt ermittelt. Die gesamte Breite dieses 
+        Bereiches in Metern wird als Parameter angegeben. Diese Variante scheint die 
+        besten Ergebnisse zu liefern.</p>
+    <p>
+        Für beide Varianten wird vor der eigentlichen Glättung eine Dämpfung für 
+        Ausreisser vorgenommen. Dafür wird ein max. gültiger An- bzw. Abstieg in Prozent 
+        angegeben. Wird dieser Anstieg überschritten, wird die entsprechende Höhe als 
+        Mittelwert der vorhergehenden Punkte neu berechnet. Ist das 
+        nicht gewünscht, sollte unrealistisch hoher Wert festgelegt werden. Vordefiniert 
+        sind 25%, d.h. 25m Anstieg auf 100m Entfernung.</p>
+    <p>
+        Zur Erzeugung von Höhenprofilen können die dafür nötigen Daten exportiert 
+        werden. Die Exportdatei enthält i.W. 2 Datenspalten durch Tabulator getrennt: 
+        Entfernung in Metern und Höhe in Metern.</p>
+    <p class="beispiel">
+        Beispiel: Höhenglättung</p>
+    <p class="code">
+        rem ===== SlidingMean mit 5 Punkten<br />
+        gpxtool --heightsimplify=SlidingMean --heightwidth=5 --output=dest.gpx inp1.gpx<br />
+        rem ===== SlidingIntegral mit 150m Breite<br />
+        gpxtool --heightsimplify --heightwidth=150 --output=dest.gpx inp1.gpx<br />
+        rem ===== Höhendatenexport der geglätteten Daten<br />
+        gpxtool --heightsimplify --heightoutput=height.txt inp1.gpx</p>
+    <p>
+        Zur Beseitigung von &quot;Ausreißern&quot; bei den Höhenangaben kann ein max. gültiger An- 
+        bzw. Abstieg in Prozent angegeben werden. Außerdem wird die Breite (Weglänge) 
+        des Bereiches benötigt, der durch seinen Anfangs- und Endpunkt den 
+        Standard-Anstieg festlegt. Dieser Bereich wird schrittweise über den Track 
+        verschoben. Alle Punkte innerhalb des Bereiches, die den max. An-/Abstieg 
+        übersteigen erhalten dann diesen Standard-Anstieg. Ist die Bereichsbreite 0, 
+        wird diese Funktion abgeschaltet.</p>
+    <p class="code">
+        gpxtool 
+        --heightoutlierwidth=100 --maxascent=20 --output=dest.gpx inp1.gpx</p>
+    <h2>
+        Verarbeitungsreihenfolge</h2>
+    <p>
+        Die Verarbeitung erfolgt je nach gewählten Optionen der Reihe nach in folgenden 
+        Schritten:</p>
+    <ul>
+        <li>Zusammenfügen der Input-Dateien</li>
+        <li>Entfernung unerwünschter Wegpunkte, Routen und Tracks</li>
+        <li>Interpolation fehlender Höhen- und Zeitangaben in den Tracks</li>
+        <li>Löschung aller Höhenangaben in den Tracks</li>
+        <li>konstante Höhe setzen bzw. Minimal- und/oder Maximalhöhe setzen</li>
+        <li>Löschung aller Zeitangaben in den Tracks</li>
+        <li>Geschwindigkeitsausreißer löschen</li>
+        <li>&quot;Rastplatz&quot;-Vereinfachung (ev. mit Protokollierung)</li>
+        <li>Trackvereinfachung</li>
+        <li>Ausreißerbeseitung für Höhenangaben</li>
+        <li>Höhenglättung</li>
+        <li>Erzeugung der Profildatei</li>
+        <li>Erzeugung der Ergebnisdatei</li>
+    </ul>
+    <p>
+        &nbsp;</p>
+
+</body></html>
