@@ -1,2 +1,2 @@
 # GpxTool
-This tool is for processing GPF-files.
+This tool is for processing GPX-files.
