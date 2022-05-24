@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -10,23 +10,24 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GpxTool</RootNamespace>
     <AssemblyName>GpxTool</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -34,22 +35,47 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FSofTUtils\CmdlineOptions.cs" />
-    <Compile Include="FSofTUtils\GeoHelper.cs" />
-    <Compile Include="FSofTUtils\PolylineSimplification\PolylineSimplification.cs" />
-    <Compile Include="GpxFile.cs" />
+    <Compile Include="FSofTUtils\Geography\GeoHelper.cs" />
+    <Compile Include="FSofTUtils\Geography\GpxFile2KmlWriter.cs" />
+    <Compile Include="FSofTUtils\Geometry\PolylineSimplification\Point.cs" />
+    <Compile Include="FSofTUtils\Geometry\PolylineSimplification\PointList.cs" />
+    <Compile Include="FSofTUtils\Geometry\PolylineSimplification\PointListExt.cs" />
+    <Compile Include="FSofTUtils\SimpleXmlDocument.cs" />
+    <Compile Include="FSofTUtils\TaskQueue.cs" />
+    <Compile Include="FSofTUtils\Geography\GpxFile.cs" />
+    <Compile Include="GpxFileSpecial.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\GpxRoute.cs" />
     <Compile Include="Options.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\BaseElement.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\GpxBounds.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\GpxMetadata1_1.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\GpxPointBase.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\GpxRoutePoint.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\GpxTime1_0.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\GpxTrack.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\GpxTrackPoint.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\GpxTrackSegment.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\GpxWaypoint.cs" />
+    <Compile Include="FSofTUtils\Geography\PoorGpx\GpxAll.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FSofTUtils\SimpleXmlDocument.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

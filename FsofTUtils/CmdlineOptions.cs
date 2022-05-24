@@ -1,4 +1,4 @@
-﻿// FSofT, 5.7.2010, ...,17.7.2017
+﻿// FSofT, 5.7.2010, ..., 21.9.2020
 
 #define PLATFORM_WINDOWS
 
@@ -36,12 +36,11 @@ diesem Programm erhalten haben. Falls nicht, siehe
 
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Text;
 using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 
-namespace FSoftUtils {
+namespace FSofTUtils {
 
    /*
     * Eine Option kann in kurzer (-x) und/oder langer (--lang bzw /lang) Form definiert werden.
@@ -158,8 +157,8 @@ namespace FSoftUtils {
       }
 
       //Regex rex_opt_short = new Regex(@"^-([\w\?]{1})$");
-      Regex rex_opt_short = new Regex(@"^-([A-Za-z0-9\?]+)$");
-      Regex rex_opt_long = new Regex(@"^(--|/)([A-Za-z0-9]{1}[\w_]*)");     // \w <--> [A-Za-z0-9_] (vgl. http://en.wikipedia.org/wiki/Regular_expression)
+      readonly Regex rex_opt_short = new Regex(@"^-([A-Za-z0-9\?]+)$");
+      readonly Regex rex_opt_long = new Regex(@"^(--|/)([A-Za-z0-9]{1}[\w_]*)");     // \w <--> [A-Za-z0-9_] (vgl. http://en.wikipedia.org/wiki/Regular_expression)
 
 
       /// <summary>
@@ -281,12 +280,6 @@ namespace FSoftUtils {
 
             oArgument = null; // Standard: ohne Argument
 
-            int iArg;
-            double dArg;
-            uint uArg;
-            long lArg;
-            ulong ulArg;
-            bool bArg;
 
             switch (Typ) {
                case OptionArgumentType.Nothing:
@@ -309,6 +302,12 @@ namespace FSoftUtils {
                   break;
             }
 
+
+            double dArg;
+
+            uint uArg;
+
+            ulong ulArg;
             switch (Typ) {
                case OptionArgumentType.Nothing:
                   if (sArgument != null)
@@ -326,7 +325,7 @@ namespace FSoftUtils {
                case OptionArgumentType.IntegerOrNothing:
                   if (Typ == OptionArgumentType.Integer ||
                       (Typ == OptionArgumentType.IntegerOrNothing && sArgument != null)) {
-                     if (!IntegerIsPossible(sArgument, out iArg))
+                     if (!IntegerIsPossible(sArgument, out int iArg))
                         ThrowExceptionFalseType1(sArgument);
                      oArgument = iArg;
                   }
@@ -356,7 +355,8 @@ namespace FSoftUtils {
                case OptionArgumentType.LongOrNothing:
                   if (Typ == OptionArgumentType.Long ||
                       (Typ == OptionArgumentType.LongOrNothing && sArgument != null)) {
-                     if (!LongIsPossible(sArgument, out lArg))
+
+                     if (!LongIsPossible(sArgument, out long lArg))
                         ThrowExceptionFalseType1(sArgument);
                      oArgument = lArg;
                   }
@@ -416,8 +416,11 @@ namespace FSoftUtils {
                case OptionArgumentType.BooleanOrNothing:
                   if (Typ == OptionArgumentType.Boolean ||
                       (Typ == OptionArgumentType.BooleanOrNothing && sArgument != null)) {
-                     if (!BooleanIsPossible(sArgument, out bArg))
+
+                     if (!BooleanIsPossible(sArgument, out bool bArg)) {
                         ThrowExceptionFalseType1(sArgument);
+                     }
+
                      oArgument = bArg;
                   }
                   break;
@@ -737,9 +740,7 @@ namespace FSoftUtils {
       public static bool IntegerIsPossible(string sArgument, out int val) {
          bool bPossible = false;
          val = 0;
-         long tmp;
-         ulong utmp;
-         if (NumericIsPossible(sArgument, false, out tmp, out utmp))
+         if (NumericIsPossible(sArgument, false, out long tmp, out ulong utmp))
             if (int.MinValue <= tmp && tmp <= int.MaxValue) {
                val = (int)tmp;
                bPossible = true;
@@ -756,9 +757,7 @@ namespace FSoftUtils {
       public static bool UnsignedIntegerIsPossible(string sArgument, out uint val) {
          bool bPossible = false;
          val = 0;
-         long tmp;
-         ulong utmp;
-         if (NumericIsPossible(sArgument, true, out tmp, out utmp))
+         if (NumericIsPossible(sArgument, true, out long tmp, out ulong utmp))
             if (uint.MinValue <= utmp && utmp <= uint.MaxValue) {
                val = (uint)utmp;
                bPossible = true;
@@ -775,8 +774,7 @@ namespace FSoftUtils {
       public static bool LongIsPossible(string sArgument, out long val) {
          bool bPossible = false;
          val = 0;
-         ulong utmp;
-         if (NumericIsPossible(sArgument, false, out val, out utmp))
+         if (NumericIsPossible(sArgument, false, out val, out ulong utmp))
             bPossible = true;
          return bPossible;
       }
@@ -790,9 +788,10 @@ namespace FSoftUtils {
       public static bool UnsignedLongIsPossible(string sArgument, out ulong val) {
          bool bPossible = false;
          val = 0;
-         long tmp;
-         if (NumericIsPossible(sArgument, true, out tmp, out val))
+         if (NumericIsPossible(sArgument, true, out long tmp, out val)) {
             bPossible = true;
+         }
+
          return bPossible;
       }
 
@@ -813,12 +812,10 @@ namespace FSoftUtils {
          if (!bPossible)
             try {
                bPossible = true;
-               int iVal;
-               double dVal;
-               if (IntegerIsPossible(sArgument, out iVal))
+               if (IntegerIsPossible(sArgument, out int iVal))
                   val = iVal != 0;
                else
-                  if (DoubleIsPossible(sArgument, out dVal))
+                  if (DoubleIsPossible(sArgument, out double dVal))
                   val = dVal != 0.0;
                else
                   bPossible = false;
@@ -1442,10 +1439,9 @@ namespace FSoftUtils {
       }
 
       public override string ToString() {
-         return string.Format("{0} definierte Optionen; {1} Optionen erkannt; {2} Parameter",
-                              DefinedOptionsCount,
-                              SampledOptions.Count,
-                              Parameters.Count);
+         return string.Format("{0} definierte Optionen; {1} Optionen erkannt",
+                                 DefinedOptions != null ? DefinedOptionsCount : 0,
+                                 SampledOptions != null ? SampledOptions.Count : 0);
       }
 
    }

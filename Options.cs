@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using FSoftUtils;
+using FSofTUtils;
 using System.IO;
 
 namespace GpxTool {
@@ -35,100 +35,159 @@ namespace GpxTool {
          SlidingIntegral
       }
 
+      /// <summary>
+      /// zusätzliche Daten für einen KML-Track
+      /// </summary>
+      public class KmlTrackData {
+         public uint ColorA { get; private set; }
+         public uint ColorR { get; private set; }
+         public uint ColorG { get; private set; }
+         public uint ColorB { get; private set; }
+         public uint LineWidth { get; private set; }
+
+         public KmlTrackData(int cola = 255, int colr = 0, int colg = 0, int colb = 0, int linewidth = 4) {
+            ColorA = (uint)(cola & 0xFF);
+            ColorR = (uint)(colr & 0xFF);
+            ColorG = (uint)(colg & 0xFF);
+            ColorB = (uint)(colb & 0xFF);
+            LineWidth = (uint)Math.Abs(linewidth);
+         }
+      }
+
+
       // alle Optionen sind 'read-only'
 
       /// <summary>
       /// Infos über die Tracks und Segmente ausgeben
       /// </summary>
       public bool ShowInfo { get; private set; }
+
       /// <summary>
       /// Array der neuen Tracknamen
       /// </summary>
       public string[] NewTrackName { get; private set; }
+
       /// <summary>
       /// Tracks mit dem Dateinamen bezeichnen
       /// </summary>
       public bool Filename2TrackName { get; private set; }
+
       /// <summary>
       /// Name der Ausgabedatei
       /// </summary>
       public string Outputfile { get; private set; }
+
+      /// <summary>
+      /// eine schon bestehende Zieldatei darf überschrieben werden
+      /// </summary>
+      public bool OutputOverwrite { get; private set; }
+
+      /// <summary>
+      /// GPX-Datei vereinfachen
+      /// </summary>
+      public bool SimplifyGPX { get; private set; }
+
+
       /// <summary>
       /// Name der Datei für die Höhenprofildaten
       /// </summary>
       public string HeightOutputfile { get; private set; }
+
       /// <summary>
       /// Liste der auszugebenden Tracks (wenn null dann alle, wenn Listenlänge 0 dann keiner)
       /// </summary>
       public int[] Output4Tracks { get; private set; }
+
+      /// <summary>
+      /// zusätzliche Segmente in Tracks umwandeln
+      /// </summary>
+      public bool Segment2Track { get; private set; }
+
       /// <summary>
       /// alle Zeitstempel entfernen
       /// </summary>
       public bool DeleteTimestamp { get; private set; }
+
       /// <summary>
       /// alle Höhenangaben entfernen
       /// </summary>
       public bool DeleteHeight { get; private set; }
+
       /// <summary>
       /// alle Punkte auf diese Höhe setzen
       /// </summary>
       public double ConstantHeight { get; private set; }
+
       /// <summary>
       /// fehlende Höhenwerte und Zeitstempel linear interpolieren
       /// </summary>
       public bool GapFill { get; private set; }
+
       /// <summary>
       /// Art der horizontalen Vereinfachung
       /// </summary>
       public HSimplification HorizontalSimplification { get; private set; }
+
       /// <summary>
       /// Breite des Toleranzbereiches für die Vereinfachung (in m, Standard 5)
       /// </summary>
       public double HorizontalWidth { get; private set; }
+
       /// <summary>
       /// maximal erlaubte Geschwindigkeit
       /// </summary>
       public double HorizontalMaxSpeed { get; private set; }
+
       /// <summary>
       /// Parameter für die Pausenplatzberechnung
       /// </summary>
       public int[] HorizontalRestArea { get; private set; }
+
       /// <summary>
       /// Ausgabedatei für die Pausenplatzberechnung
       /// </summary>
       public string HorizontalRestAreaProt { get; private set; }
+
       /// <summary>
       /// Art der vertikalen Vereinfachung
       /// </summary>
       public VSimplification VerticalSimplification { get; private set; }
+
       /// <summary>
       /// min. erlaubte Höhe
       /// </summary>
       public double MinHeight { get; private set; }
+
       /// <summary>
       /// max. erlaubte Höhe
       /// </summary>
       public double MaxHeight { get; private set; }
+
       /// <summary>
       /// Breite des Höhen-Integrationsbereiches in Metern (Standard 250m)
       /// </summary>
       public double VerticalWidth { get; private set; }
+
       /// <summary>
       /// Breite des Bereiches für die "Ausreißer"-Korrektur von Höhen (Standard 100m)
       /// </summary>
       public double VerticalOutlierWidth { get; private set; }
+
       /// <summary>
       /// max. gültiger An-/Abstieg in Prozent (Standard 25%)
       /// </summary>
       public double MaxAscent { get; private set; }
+
       /// <summary>
       /// Liste der auszugebenden Routen (wenn null dann alle, wenn Listenlänge 0 dann keiner)
       /// </summary>
       public int[] Output4Routes { get; private set; }
+
       /// <summary>
       /// Liste der auszugebenden Waypoints (wenn null dann alle, wenn Listenlänge 0 dann keiner)
       /// </summary>
       public int[] Output4Waypoints { get; private set; }
+
       /// <summary>
       /// Ausgabe formatiert oder "1-zeilig"
       /// </summary>
@@ -137,7 +196,20 @@ namespace GpxTool {
       /// <summary>
       /// Programm-Parameter
       /// </summary>
-      public List<string> Inputfile { get; private set; }
+      public List<string> Inputfiles { get; private set; }
+
+      /// <summary>
+      /// bei Verwendung von Wildcards werden Eingabedateien auch in Unterverzeichnissen gesucht
+      /// </summary>
+      public bool InputWithSubdirs { get; private set; }
+
+      /// <summary>
+      /// jeden Track in eigene Datei ausgeben
+      /// </summary>
+      public bool OneFilePerTrack { get; private set; }
+
+      public List<KmlTrackData> KmlTrackdata { get; private set; }
+
 
       CmdlineOptions cmd;
 
@@ -146,13 +218,18 @@ namespace GpxTool {
       /// </summary>
       enum MyOptions {
          ShowInfo,
+         InputWithSubdirs,
          NewTrackName,
          Outputfile,
+         OutputOverwrite,
+         SimplifyGPX,
          FormatedOutput,
 
          Output4Tracks,
          Output4Routes,
          Output4Waypoints,
+
+         Segment2Track,
 
          DeleteTimestamp,
          DeleteHeight,
@@ -175,6 +252,8 @@ namespace GpxTool {
          MaxAscent,
 
          Filename2TrackName,
+         OneFilePerTrack,
+         KmlTrackData,
          Help
       }
 
@@ -187,12 +266,20 @@ namespace GpxTool {
             ShowInfo = true;
             cmd.DefineOption((int)MyOptions.ShowInfo, "info", "i", "Ausgabe von Waypoint-, Routen-, Track- und Segment-Infos auf STDOUT (Name, Länge usw.)" + System.Environment.NewLine +
                                                                    "(Standard: true)", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
-            NewTrackName = new string[0];
-            cmd.DefineOption((int)MyOptions.NewTrackName, "name", "n", "neuer Trackname (mehrfach verwendbar für Track 1 usw.)", CmdlineOptions.OptionArgumentType.String, int.MaxValue);
+            InputWithSubdirs = false;
+            cmd.DefineOption((int)MyOptions.InputWithSubdirs, "withsubdirs", "", "bei Verwendung von * oder ? werden Eingabedateien auch in Unterverzeichnissen gesucht", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
+
             Outputfile = "";
             cmd.DefineOption((int)MyOptions.Outputfile, "output", "o", "Name der Ausgabedatei für die (ev. veränderten) GPX-Daten", CmdlineOptions.OptionArgumentType.String);
+            OutputOverwrite = false;
+            cmd.DefineOption((int)MyOptions.OutputOverwrite, "overwrite", "", "eine ev. schon vorhandene GPX-Datei darf überschrieben werden (ohne arg 'true', Standard 'false')", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
             FormatedOutput = true;
-            cmd.DefineOption((int)MyOptions.FormatedOutput, "formatted", "f", "Ausgabe formatiert oder '1-zeilig' (Standard: true)", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
+            cmd.DefineOption((int)MyOptions.FormatedOutput, "formated", "f", "Ausgabe formatiert oder '1-zeilig' (ohne arg 'true', Standard: 'false')", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
+            SimplifyGPX = false;
+            cmd.DefineOption((int)MyOptions.SimplifyGPX, "simplifygpx", "", "GPX-Datei vereinfachen (ohne arg 'true', Standard: 'false', bei mehreren Dateien immer true)", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
+
+            NewTrackName = new string[0];
+            cmd.DefineOption((int)MyOptions.NewTrackName, "name", "n", "neuer Trackname (mehrfach verwendbar für Track 1 usw.)", CmdlineOptions.OptionArgumentType.String, int.MaxValue);
 
             HeightOutputfile = "";
             cmd.DefineOption((int)MyOptions.HeightOutputfile, "heightoutput", "O", "Name der Ausgabedatei für die (ev. veränderten) Höhen-Daten in Abhängigkeit" + System.Environment.NewLine +
@@ -204,14 +291,17 @@ namespace GpxTool {
             Output4Waypoints = null;
             cmd.DefineOption((int)MyOptions.Output4Waypoints, "waypoints", "p", "Liste (mit Komma) der zu verwendenden Waypoints (1, ...) (Standard: alle)", CmdlineOptions.OptionArgumentType.String);
 
+            Segment2Track = false;
+            cmd.DefineOption((int)MyOptions.Segment2Track, "segment2track", "", "zusätzliche Segmente in eigene Tracks umwandeln (ohne arg 'true', Standard: 'false')", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
+
             DeleteTimestamp = false;
-            cmd.DefineOption((int)MyOptions.DeleteTimestamp, "deletetime", "", "alle Zeitstempel werden aus den Trackpunkten entfernt", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
+            cmd.DefineOption((int)MyOptions.DeleteTimestamp, "deletetime", "", "alle Zeitstempel werden aus den Trackpunkten entfernt (ohne arg 'true', Standard: 'false')", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
             DeleteHeight = false;
-            cmd.DefineOption((int)MyOptions.DeleteHeight, "deleteheight", "", "alle Höhenangaben werden aus den Trackpunkten entfernt", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
+            cmd.DefineOption((int)MyOptions.DeleteHeight, "deleteheight", "", "alle Höhenangaben werden aus den Trackpunkten entfernt (ohne arg 'true', Standard: 'false')", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
             ConstantHeight = double.MinValue;
             cmd.DefineOption((int)MyOptions.ConstantHeight, "newheigth", "N", "alle Höhen werden in den Trackpunkten auf einen konstanten Wert gesetzt", CmdlineOptions.OptionArgumentType.Double);
             GapFill = false;
-            cmd.DefineOption((int)MyOptions.GapFill, "gapfill", "G", "fehlende Höhenwerte und Zeitstempel linear interpolieren (Standard: false)", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
+            cmd.DefineOption((int)MyOptions.GapFill, "gapfill", "G", "fehlende Höhenwerte und Zeitstempel linear interpolieren  (ohne arg 'true', Standard: 'false')", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
 
             HorizontalSimplification = HSimplification.Nothing;
             cmd.DefineOption((int)MyOptions.HorizontalSimplification, "simplify", "s", "Vereinfachung der Tracks [mit Algorithmus Reumann-Witkam (RW) oder Douglas-Peucker (DP)]" + System.Environment.NewLine +
@@ -243,6 +333,11 @@ namespace GpxTool {
             cmd.DefineOption((int)MyOptions.MaxAscent, "maxascent", "A", "max. gültiger An-/Abstieg in Prozent (Standard 25%)", CmdlineOptions.OptionArgumentType.PositivDouble);
             Filename2TrackName = false;
             cmd.DefineOption((int)MyOptions.Filename2TrackName, "filenametotrackname", "", "Tracknamen auf den Dateinamen setzen (Standard: false)", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
+            OneFilePerTrack = false;
+            cmd.DefineOption((int)MyOptions.OneFilePerTrack, "onefilepertrack", "", "jeden Track in einer eigenen Datei ausgeben (Standard: false)", CmdlineOptions.OptionArgumentType.BooleanOrNothing);
+
+            KmlTrackdata = new List<KmlTrackData>();
+            cmd.DefineOption((int)MyOptions.KmlTrackData, "kmltrackdata", "", "Farbe und Linienbreite für jeden Track bei KML-Ausgabe (Liste aus jeweils ARGB/RGB-Farbe und Breite)", CmdlineOptions.OptionArgumentType.String);
 
 
             cmd.DefineOption((int)MyOptions.Help, "help", "?", "diese Hilfe", CmdlineOptions.OptionArgumentType.Nothing);
@@ -252,13 +347,20 @@ namespace GpxTool {
          }
       }
 
+      bool GetBoolDefTrue(MyOptions opt) {
+         if (cmd.ArgIsUsed((int)opt))
+            return cmd.BooleanValue((int)opt);
+         else
+            return true;
+      }
 
       /// <summary>
       /// Auswertung der Optionen
       /// </summary>
       /// <param name="args"></param>
       public void Evaluate(string[] args) {
-         if (args == null) return;
+         if (args == null)
+            return;
          List<string> NewTrackName_Tmp = new List<string>();
          try {
             cmd.Parse(args);
@@ -268,10 +370,11 @@ namespace GpxTool {
                if (optcount > 0)
                   switch (opt) {
                      case MyOptions.ShowInfo:
-                        if (cmd.ArgIsUsed((int)opt))
-                           ShowInfo = cmd.BooleanValue((int)opt);
-                        else
-                           ShowInfo = true;
+                        ShowInfo = GetBoolDefTrue(opt);
+                        break;
+
+                     case MyOptions.InputWithSubdirs:
+                        InputWithSubdirs = GetBoolDefTrue(opt);
                         break;
 
                      case MyOptions.NewTrackName:
@@ -279,11 +382,16 @@ namespace GpxTool {
                            NewTrackName_Tmp.Add(cmd.StringValue((int)opt, i));
                         break;
 
+                     case MyOptions.OutputOverwrite:
+                        OutputOverwrite = GetBoolDefTrue(opt);
+                        break;
+
+                     case MyOptions.SimplifyGPX:
+                        SimplifyGPX = GetBoolDefTrue(opt);
+                        break;
+
                      case MyOptions.FormatedOutput:
-                        if (cmd.ArgIsUsed((int)opt))
-                           FormatedOutput = cmd.BooleanValue((int)opt);
-                        else
-                           FormatedOutput = true;
+                        FormatedOutput = GetBoolDefTrue(opt);
                         break;
 
                      case MyOptions.Outputfile:
@@ -298,18 +406,16 @@ namespace GpxTool {
                         Output4Tracks = GetIndexArray(cmd.StringValue((int)opt));
                         break;
 
+                     case MyOptions.Segment2Track:
+                        Segment2Track = GetBoolDefTrue(opt);
+                        break;
+
                      case MyOptions.DeleteTimestamp:
-                        if (cmd.ArgIsUsed((int)opt))
-                           DeleteTimestamp = cmd.BooleanValue((int)opt);
-                        else
-                           DeleteTimestamp = true;
+                        DeleteTimestamp = GetBoolDefTrue(opt);
                         break;
 
                      case MyOptions.DeleteHeight:
-                        if (cmd.ArgIsUsed((int)opt))
-                           DeleteHeight = cmd.BooleanValue((int)opt);
-                        else
-                           DeleteHeight = true;
+                        DeleteHeight = GetBoolDefTrue(opt);
                         break;
 
                      case MyOptions.ConstantHeight:
@@ -317,10 +423,7 @@ namespace GpxTool {
                         break;
 
                      case MyOptions.GapFill:
-                        if (cmd.ArgIsUsed((int)opt))
-                           GapFill = cmd.BooleanValue((int)opt);
-                        else
-                           GapFill = true;
+                        GapFill = GetBoolDefTrue(opt);
                         break;
 
                      case MyOptions.HorizontalSimplification: {
@@ -356,7 +459,7 @@ namespace GpxTool {
                         break;
 
                      case MyOptions.MinHeight:
-                        MinHeight=cmd.DoubleValue((int)opt);
+                        MinHeight = cmd.DoubleValue((int)opt);
                         break;
 
                      case MyOptions.MaxHeight:
@@ -400,12 +503,16 @@ namespace GpxTool {
                         break;
 
                      case MyOptions.Filename2TrackName:
-                        if (cmd.ArgIsUsed((int)opt))
-                           Filename2TrackName = cmd.BooleanValue((int)opt);
-                        else
-                           Filename2TrackName = true;
+                        Filename2TrackName = GetBoolDefTrue(opt);
                         break;
 
+                     case MyOptions.OneFilePerTrack:
+                        OneFilePerTrack = GetBoolDefTrue(opt);
+                        break;
+
+                     case MyOptions.KmlTrackData:
+                        KmlTrackdata = ReadKmlTrackDataList(cmd.StringValue((int)opt));
+                        break;
 
                      case MyOptions.Help:
                         ShowHelp();
@@ -415,11 +522,11 @@ namespace GpxTool {
 
             Console.Error.WriteLine(cmd);
 
-            Inputfile = new List<string>();
+            Inputfiles = new List<string>();
             foreach (string item in cmd.Parameters)
-               Inputfile.AddRange(CmdlineOptions.WildcardExpansion4Files(item));
+               Inputfiles.AddRange(CmdlineOptions.WildcardExpansion4Files(item));
 
-            Console.Error.WriteLine(Inputfile.Count);
+            Console.Error.WriteLine(Inputfiles.Count);
 
 
 
@@ -499,18 +606,74 @@ namespace GpxTool {
             return new int[0];
       }
 
+      /// <summary>
+      /// erzeugt eine Liste der Daten für die KML-Tracks
+      /// </summary>
+      /// <param name="arg"></param>
+      /// <returns></returns>
+      List<KmlTrackData> ReadKmlTrackDataList(string arg) {
+         List<KmlTrackData> lst = new List<KmlTrackData>();
+         if (!string.IsNullOrEmpty(arg)) {
+            string[] fields = arg.Split(new char[] { ',' });
+            for (int i = 0; i < fields.Length - 1; i += 2) {
+               string strcolhex = fields[i];
+               int a = 255;
+               int r = 0;
+               int g = 0;
+               int b = 0;
+               bool valid = false;
+               try {
+                  if (strcolhex.Length == 7 || strcolhex.Length == 9) {
+                     int start = 1;
+                     if (strcolhex[0] == '#') {
+                        try {
+                           if (strcolhex.Length == 9) {
+                              a = (int)Convert.ToUInt32(strcolhex.Substring(start, 2), 16);
+                              start += 2;
+                           }
+                           r = (int)Convert.ToUInt32(strcolhex.Substring(start, 2), 16);
+                           start += 2;
+                           g = (int)Convert.ToUInt32(strcolhex.Substring(start, 2), 16);
+                           start += 2;
+                           b = (int)Convert.ToUInt32(strcolhex.Substring(start, 2), 16);
+                           valid = true;
+                        } catch {
+                           throw;
+                        }
+                     }
+                  }
+                  if (!valid)
+                     throw new Exception();
+               } catch {
+                  throw new Exception(string.Format("Das Listenelement '{0}' ist keine hexadezimale Farbdef.", strcolhex));
+               }
+
+               int width;
+               try {
+                  width = Convert.ToInt32(fields[i + 1]);
+               } catch (Exception) {
+                  throw new Exception(string.Format("Das Listenelement '{0}' ist keine Zahl.", fields[i + 1]));
+               }
+
+               lst.Add(new KmlTrackData(a, r, g, b, width));
+            }
+         }
+         return lst;
+      }
+
 
       /// <summary>
       /// Hilfetext für Optionen ausgeben
       /// </summary>
       /// <param name="cmd"></param>
       public void ShowHelp() {
+         Console.Error.WriteLine("GpxTool[Optionen] gpx - input...");
+
          List<string> help = cmd.GetHelpText();
          for (int i = 0; i < help.Count; i++)
             Console.Error.WriteLine(help[i]);
          Console.Error.WriteLine();
          Console.Error.WriteLine("Zusatzinfos:");
-
 
          Console.Error.WriteLine("Für '--' darf auch '/' stehen und für '=' Leerzeichen oder ':'.");
 

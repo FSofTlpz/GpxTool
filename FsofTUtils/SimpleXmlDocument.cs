@@ -4,7 +4,7 @@
  * copyright by FSofT
  * 
  * letzte Änderung
- * 7.5.2017
+ * 11.8.2019
  * 
  */
 #define NO_DEBUGOUTPUT
@@ -18,7 +18,7 @@ using System.Xml.Schema;
 using System.Text;
 using System.Collections.Generic;
 
-namespace FSoftUtils {
+namespace FSofTUtils {
 
 
    /// <summary>
@@ -58,19 +58,19 @@ namespace FSoftUtils {
    ///         
    ///      Append("/*/node1", "node2", "wert2")
    ///         An (jeden) "node1" wird ein neuer untergeordneter Knoten "node2" mit dem Wert "wert2" angehängt.
-   ///      Append("/*/node1", "node2", "wert2", new Dictionary<string, string>() { { "attribut1", "wert3" }, { "attribut2", null } })
+   ///      Append("/*/node1", "node2", "wert2", new Dictionary&lt;string, string&gt;() { { "attribut1", "wert3" }, { "attribut2", null } })
    ///         An (jeden) "node1" wird ein neuer untergeordneter Knoten "node2" mit dem Wert "wert2" und den 2 Attributen angehängt.
-   ///      Append("/*/node1", "node2", null, new Dictionary<string, string>() { { "attribut1", "wert3" }, { "attribut2", null } })
+   ///      Append("/*/node1", "node2", null, new Dictionary&lt;string, string&gt;() { { "attribut1", "wert3" }, { "attribut2", null } })
    ///         An (jeden) "node1" wird ein neuer untergeordneter Knoten "node2" ohne Wert aber mit den 2 Attributen angehängt.
    ///      Append("/*/node1", "node2", "wert2", null, true)
    ///         An (jeden) "node1" wird ein neuer untergeordneter Knoten "node2" angehängt, wenn er nicht schon ex. Auf jeden Fall wird der Wert von "node2" auf "wert2" gesetzt.
-   ///      Append("/*/node1", null, null, new Dictionary<string, string>() { { "attribut1", "wert3" }, { "attribut2", null } })
+   ///      Append("/*/node1", null, null, new Dictionary&lt;string, string&gt;() { { "attribut1", "wert3" }, { "attribut2", null } })
    ///         An (jeden) "node1" werden die 2 Attributen angehängt bzw. geändert.
    ///         Ein einzelnes Attribut kann auch mit Change() gesetzt werden.
    /// 
-   ///      InsertNode(string xpath4node, string nodename, string nodevalue = null, Dictionary<string, string> attributes = null, bool afterxpath = true)
+   ///      InsertNode(string xpath4node, string nodename, string nodevalue = null, Dictionary&lt;string, string&gt; attributes = null, bool afterxpath = true)
    ///      
-   ///      InsertNode("/*/node1[3]", "node1", "wert1", new Dictionary<string, string>() { { "attribut1", "wert3" }, { "attribut2", null } }, false)
+   ///      InsertNode("/*/node1[3]", "node1", "wert1", new Dictionary&lt;string, string&gt;() { { "attribut1", "wert3" }, { "attribut2", null } }, false)
    ///         Vor dem 3. "node1" wird ein neuer "node1" mit dem Wert "wert1" und den 2 Attributen eingefügt.
    ///      InsertNode("/*/node1[3]", "node1")
    ///         Nach dem 3. "node1" wird ein neuer "node1" ohne Wert eingefügt.
@@ -115,8 +115,8 @@ namespace FSoftUtils {
          CheckNewFile = false;
          Validating = true;
          NsMng = null;
-         navigator = null;
-         Declaration = CreateXmlDeclaration("1.0", sEncoding != null ? sEncoding : "Windows-1252", null);
+         navigator = CreateNavigator();
+         Declaration = CreateXmlDeclaration("1.0", sEncoding ?? "Windows-1252", null);
          Rootname = string.IsNullOrEmpty(sRoot) ? "dummy" : sRoot;
          XmlFilename = string.IsNullOrEmpty(sFile) ? "dummy.xml" : sFile;
          XsdFilename = string.IsNullOrEmpty(sXsdFile) ? "" : sXsdFile;
@@ -193,33 +193,97 @@ namespace FSoftUtils {
       /// Die Konfigurationsdatei wird neu (und ev. mit Validierung!) gelesen. Bei einem Fehler wird eine Exception ausgelöst.
       /// </summary>
       /// <returns>false, wenn das Dateiedatum nicht neuer als das registrierte Dateidatum ist</returns>
-      public bool LoadData() {
-         if (FileExist()) {
-            try {
-               DateTime writetime = File.GetLastWriteTime(XmlFilename);
-               if (!CheckNewFile ||
-                   writetime > lastwrite) {
-                  lastwrite = writetime;
-                  if (Validating) {
-                     XmlReaderSettings xml_rset = new XmlReaderSettings();
-                     xml_rset.Schemas.Add(null, XsdFilename);
-                     xml_rset.ValidationType = ValidationType.Schema;
-                     xml_rset.ValidationEventHandler += new ValidationEventHandler(XmlValidationEventHandler);
-                     XmlReader xreader = XmlReader.Create(XmlFilename, xml_rset);
-                     Load(xreader);
-                     xreader.Close();
-                     Rootname = DocumentElement.Name;
-                  } else
-                     Load(XmlFilename);
-                  navigator = CreateNavigator();
-                  return true;
-               } else
-                  return false;
-            } catch (Exception ex) {
-               throw new Exception(string.Format("Fehler beim Lesen der Datei '{0}': {1}", XmlFilename, ex.Message));
+      //public bool LoadData() {
+      //   if (FileExist()) {
+      //      try {
+      //         DateTime writetime = File.GetLastWriteTime(XmlFilename);
+      //         if (!CheckNewFile ||
+      //             writetime > lastwrite) {
+      //            lastwrite = writetime;
+      //            if (Validating) {
+      //               XmlReaderSettings xml_rset = new XmlReaderSettings();
+      //               xml_rset.Schemas.Add(null, XsdFilename);
+      //               xml_rset.ValidationType = ValidationType.Schema;
+      //               xml_rset.ValidationEventHandler += new ValidationEventHandler(XmlValidationEventHandler);
+      //               XmlReader xreader = XmlReader.Create(XmlFilename, xml_rset);
+      //               Load(xreader);
+      //               xreader.Close();
+      //               Rootname = DocumentElement.Name;
+      //            } else
+      //               Load(XmlFilename);
+      //            navigator = CreateNavigator();
+      //            return true;
+      //         } else
+      //            return false;
+      //      } catch (Exception ex) {
+      //         throw new Exception(string.Format("Fehler beim Lesen der Datei '{0}': {1}", XmlFilename, ex.Message));
+      //      }
+      //   } else
+      //      throw new Exception(string.Format("Fehler beim Lesen der Datei '{0}': Die Datei existiert nicht!", XmlFilename));
+      //}
+
+      /// <summary>
+      /// liest die Daten aus einem seekable-Inputstream oder der Datei <see cref="XmlFilename"/>  (ev. mit Validierung!) 
+      /// und löst bei einem Fehler eine Exception aus
+      /// </summary>
+      /// <param name="xmlstream">Stream der XML-Daten (kann null sein)</param>
+      /// <param name="xsdstream">Stream der XSD-Daten für die Validierung (kann null sein)</param>
+      /// <returns>false, wenn das Dateiedatum nicht neuer als das registrierte Dateidatum ist</returns>
+      public bool LoadData(Stream xmlstream = null, Stream xsdstream = null) {
+         if (xmlstream != null)
+            xmlstream.Seek(0, SeekOrigin.Begin);
+         else {
+            if (!File.Exists(XmlFilename))
+               throw new Exception(string.Format("Fehler beim Lesen der Datei '{0}': Die Datei existiert nicht!", XmlFilename));
+
+            DateTime writetime = File.GetLastWriteTime(XmlFilename);
+            if (!CheckNewFile ||
+                writetime > lastwrite)
+               lastwrite = writetime;
+            else
+               return false;  // die akt. Daten sind schon eingelesen
+         }
+
+         try {
+
+            if (Validating) {
+
+               XmlReader xsdreader = null;
+               if (xsdstream != null) {
+                  xsdstream.Seek(0, SeekOrigin.Begin);
+                  xsdreader = XmlReader.Create(xsdstream);
+               }
+
+               XmlReaderSettings xml_rset = new XmlReaderSettings();
+               if (xsdreader != null)
+                  xml_rset.Schemas.Add(null, xsdreader);
+               else
+                  xml_rset.Schemas.Add(null, XsdFilename);
+               xml_rset.ValidationType = ValidationType.Schema;
+               xml_rset.ValidationEventHandler += new ValidationEventHandler(XmlValidationEventHandler);
+               XmlReader xreader = XmlReader.Create(xmlstream, xml_rset);
+               Load(xreader);
+               xreader.Close();
+               Rootname = DocumentElement.Name;
+
+            } else {
+
+               if (xmlstream != null)
+                  Load(xmlstream);
+               else
+                  Load(XmlFilename);
+
             }
-         } else
-            throw new Exception(string.Format("Fehler beim Lesen der Datei '{0}': Die Datei existiert nicht!", XmlFilename));
+            navigator = CreateNavigator();
+
+         } catch (Exception ex) {
+            if (xmlstream == null)
+               throw new Exception(string.Format("Fehler beim Lesen der Datei '{0}': {1}", XmlFilename, ex.Message));
+
+            else
+               throw new Exception(string.Format("Fehler beim Lesen der Daten: {0}", ex.Message));
+         }
+         return true;
       }
 
       /// <summary>
@@ -240,9 +304,8 @@ namespace FSoftUtils {
 
       static void XmlValidationEventHandler(object sender, ValidationEventArgs e) {
          string ext = "";
-         if (e.Exception is XmlSchemaValidationException) {
-            XmlSchemaValidationException xmle = (XmlSchemaValidationException)e.Exception;
-            ext = xmle.Message + ": " + System.Environment.NewLine;
+         if (e.Exception is XmlSchemaValidationException xmle) {
+            ext = xmle.Message + ": " + Environment.NewLine;
             if (xmle.SourceObject is XmlAttribute) {
                XmlAttribute attr = xmle.SourceObject as XmlAttribute;
                if (attr.OwnerElement != null)
@@ -266,31 +329,45 @@ namespace FSoftUtils {
       }
 
       /// <summary>
-      /// XML-Datei speichern
+      /// in XML-Datei oder Stream speichern
       /// </summary>
-      /// <param name="filename">Name der XML-Datei</param>
+      /// <param name="filename">Name der XML-Datei; ohne Name wird <see cref="XmlFilename"/> verwendet</param>
       /// <param name="formatted">wenn true, wird der Text formatiert ausgegeben, sonst "1-zeilig"</param>
-      public bool SaveData(string filename = null, bool formatted = true) {
-         if (filename == null)
-            filename = XmlFilename;
-         if (!ValidateInternData())
+      /// <param name="xmlstream">wenn ungleich null, wird der Stream für die Ausgabe verwendet</param>
+      /// <param name="xsdstream">wenn ungleich null, wird der Stream für die Validierung verwendet, sonst <see cref="XsdFilename"/></param>
+      public bool SaveData(string filename = null,
+                           bool formatted = true,
+                           Stream xmlstream = null,
+                           Stream xsdstream = null) {
+         XmlReader xsdreader = null;
+         if (xsdstream != null) {
+            xsdstream.Seek(0, SeekOrigin.Begin);
+            xsdreader = XmlReader.Create(xsdstream);
+         }
+
+         if (!ValidateInternData(xsdreader))
             return false;
 
          try {
-            System.Xml.XmlWriterSettings xmlWriterSettings = new System.Xml.XmlWriterSettings();
-            xmlWriterSettings.Encoding = System.Text.Encoding.UTF8;
-            xmlWriterSettings.Indent = formatted;
-            xmlWriterSettings.IndentChars = " ";
-            xmlWriterSettings.NewLineChars = "\r\n";
-            xmlWriterSettings.NewLineHandling = System.Xml.NewLineHandling.Replace;
-            xmlWriterSettings.NewLineOnAttributes = false;
-            //xmlWriterSettings.OmitXmlDeclaration = true;
-            xmlWriterSettings.ConformanceLevel = System.Xml.ConformanceLevel.Document;
-            using (System.Xml.XmlWriter writer = System.Xml.XmlWriter.Create(filename, xmlWriterSettings)) {
+            XmlWriterSettings xmlWriterSettings = new System.Xml.XmlWriterSettings {
+               Encoding = Encoding.UTF8,
+               Indent = formatted,
+               IndentChars = " ",
+               NewLineChars = "\r\n",
+               NewLineHandling = NewLineHandling.Replace,
+               NewLineOnAttributes = false,
+               //xmlWriterSettings.OmitXmlDeclaration = true;
+               ConformanceLevel = ConformanceLevel.Document
+            };
+
+            using (XmlWriter writer = xmlstream == null ?
+                                          XmlWriter.Create(string.IsNullOrEmpty(filename) ? XmlFilename : filename, xmlWriterSettings) :
+                                          XmlWriter.Create(xmlstream, xmlWriterSettings)) {
                Save(writer);
                writer.Flush();
                writer.Close();
             }
+
 
          } catch (Exception ex) {
             throw new Exception(ex.Message);
@@ -301,22 +378,29 @@ namespace FSoftUtils {
       /// <summary>
       /// testet die aktuell im Speicher befindlichen XML-Daten, ob sie XML-konform sind
       /// </summary>
+      /// <param name="xsdreader">falls nicht gegen die XSD-Datei getestet werden soll, sonst null</param>
       /// <returns></returns>
-      public bool ValidateInternData() {
-         return ValidateInternDataMsg() == "";
+      public bool ValidateInternData(XmlReader xsdreader = null) {
+         return ValidateInternDataMsg(xsdreader) == "";
       }
 
       /// <summary>
       /// testet die aktuell im Speicher befindlichen XML-Daten, ob sie XML-konform sind
       /// </summary>
+      /// <param name="xsdreader">falls nicht gegen die XSD-Datei getestet werden soll, sonst null</param>
       /// <returns>leere Zeichenkette oder Fehlertext</returns>
-      public string ValidateInternDataMsg() {
+      public string ValidateInternDataMsg(XmlReader xsdreader = null) {
          if (!Validating)
             return "";
          try {
             if (this.Schemas.Count == 0)
-               this.Schemas.Add(null, this.XsdFilename);
+               if (xsdreader == null)
+                  this.Schemas.Add(null, this.XsdFilename);
+               else
+                  this.Schemas.Add(null, xsdreader);
+
             this.Validate(new ValidationEventHandler(XmlValidationEventHandler));
+
          } catch (Exception exception) {
             return exception.Message;
          }
@@ -367,6 +451,32 @@ namespace FSoftUtils {
       // ReadValue("/bookstore/book/@genre");
 
       /// <summary>
+      /// typisierter Inhalt eines Nodes mit dem Node-Namen
+      /// </summary>
+      public class XPathResult {
+
+         /// <summary>
+         /// Name of the current node without any namespace prefix
+         /// </summary>
+         public string Localname { get; private set; }
+         /// <summary>
+         /// boxed object of the most appropriate .NET Framework type
+         /// </summary>
+         public object Content { get; private set; }
+
+         public XPathResult(string localname, object content) {
+            Localname = localname;
+            Content = content;
+         }
+
+         public override string ToString() {
+            return string.Format("{0}: {1}", Localname, Content);
+         }
+
+      }
+
+
+      /// <summary>
       /// wählt den/die Knoten aus oder löst eine Exception aus
       /// </summary>
       /// <param name="xpath"></param>
@@ -408,6 +518,25 @@ namespace FSoftUtils {
       }
 
       /// <summary>
+      /// liefert den XML-Text für eine weitere Analyse
+      /// </summary>
+      /// <param name="xpath"></param>
+      /// <returns></returns>
+      public string[] XReadOuterXml(string xpath) {
+         string[] ret = null;
+         XPathNodeIterator nodes = NsMng != null ?
+                                       navigator.Select(xpath, NsMng) :
+                                       navigator.Select(xpath);
+         if (nodes.Count == 0)
+            return null;
+         ret = new string[nodes.Count];
+         int i = 0;
+         while (nodes.MoveNext())
+            ret[i++] = nodes.Current.OuterXml;
+         return ret;
+      }
+
+      /// <summary>
       /// liefert die Daten entsprechend 'xpath' als Object-Array
       /// </summary>
       /// <param name="xpath"></param>
@@ -431,7 +560,7 @@ namespace FSoftUtils {
       /// <summary>
       /// liefert die Daten entsprechend 'xpath'; es muss genau 1 passender Knoten existieren, sonst wird 'defvalue' geliefert
       /// </summary>
-      /// <param name="path">XPath</param>
+      /// <param name="xpath">XPath</param>
       /// <param name="defvalue">vordefinierter Wert</param>
       /// <returns></returns>
       public string ReadValue(string xpath, string defvalue) {
@@ -443,7 +572,7 @@ namespace FSoftUtils {
       /// <summary>
       /// liefert die Daten entsprechend 'xpath'; es muss genau 1 passender Knoten existieren, sonst wird 'defvalue' geliefert
       /// </summary>
-      /// <param name="path">XPath</param>
+      /// <param name="xpath">XPath</param>
       /// <param name="defvalue">vordefinierter Wert</param>
       /// <returns></returns>
       public bool ReadValue(string xpath, bool defvalue) {
@@ -463,7 +592,7 @@ namespace FSoftUtils {
       /// <summary>
       /// liefert die Daten entsprechend 'xpath'; es muss genau 1 passender Knoten existieren, sonst wird 'defvalue' geliefert
       /// </summary>
-      /// <param name="path">XPath</param>
+      /// <param name="xpath">XPath</param>
       /// <param name="defvalue">vordefinierter Wert</param>
       /// <returns></returns>
       public int ReadValue(string xpath, int defvalue) {
@@ -479,7 +608,7 @@ namespace FSoftUtils {
       /// <summary>
       /// liefert die Daten entsprechend 'xpath'; es muss genau 1 passender Knoten existieren, sonst wird 'defvalue' geliefert
       /// </summary>
-      /// <param name="path">XPath</param>
+      /// <param name="xpath">XPath</param>
       /// <param name="defvalue">vordefinierter Wert</param>
       /// <returns></returns>
       public uint ReadValue(string xpath, uint defvalue) {
@@ -495,7 +624,7 @@ namespace FSoftUtils {
       /// <summary>
       /// liefert die Daten entsprechend 'xpath'; es muss genau 1 passender Knoten existieren, sonst wird 'defvalue' geliefert
       /// </summary>
-      /// <param name="path">XPath</param>
+      /// <param name="xpath">XPath</param>
       /// <param name="defvalue">vordefinierter Wert</param>
       /// <returns></returns>
       public double ReadValue(string xpath, double defvalue) {
@@ -515,7 +644,7 @@ namespace FSoftUtils {
       /// <summary>
       /// liefert ein Datenarray entsprechend 'xpath'
       /// </summary>
-      /// <param name="path">XPath</param>
+      /// <param name="xpath">XPath</param>
       /// <returns></returns>
       public string[] ReadString(string xpath) {
          string[] ret = null;
@@ -530,7 +659,8 @@ namespace FSoftUtils {
       /// <summary>
       /// liefert ein Datenarray entsprechend 'xpath'
       /// </summary>
-      /// <param name="path">XPath</param>
+      /// <param name="xpath">XPath</param>
+      /// <param name="defvalue">XPath</param>
       /// <returns></returns>
       public int[] ReadInt(string xpath, int defvalue) {
          int[] ret = null;
@@ -549,7 +679,8 @@ namespace FSoftUtils {
       /// <summary>
       /// liefert ein Datenarray entsprechend 'xpath'
       /// </summary>
-      /// <param name="path">XPath</param>
+      /// <param name="xpath">XPath</param>
+      /// <param name="defvalue">XPath</param>
       /// <returns></returns>
       public uint[] ReadUInt(string xpath, uint defvalue) {
          uint[] ret = null;
@@ -568,7 +699,8 @@ namespace FSoftUtils {
       /// <summary>
       /// liefert ein Datenarray entsprechend 'xpath'
       /// </summary>
-      /// <param name="path">XPath</param>
+      /// <param name="xpath">XPath</param>
+      /// <param name="defvalue">XPath</param>
       /// <returns></returns>
       public bool[] ReadBool(string xpath, bool defvalue) {
          bool[] ret = null;
@@ -587,7 +719,8 @@ namespace FSoftUtils {
       /// <summary>
       /// liefert ein Datenarray entsprechend 'xpath'
       /// </summary>
-      /// <param name="path">XPath</param>
+      /// <param name="xpath">XPath</param>
+      /// <param name="defvalue">XPath</param>
       /// <returns></returns>
       public double[] ReadDouble(string xpath, double defvalue) {
          double[] ret = null;
@@ -648,6 +781,28 @@ namespace FSoftUtils {
             return nav.OuterXml;
          }
          return null;
+      }
+
+      /// <summary>
+      /// liefert die Daten entsprechend 'xpath' als <see cref="XPathResult"/>-Array
+      /// <para>sinnvoll, wenn mehrere Werte gleichzeitig mit * und/oder @* abgefragt werden</para>
+      /// </summary>
+      /// <param name="xpath"></param>
+      /// <returns></returns>
+      public XPathResult[] ReadValues(string xpath) {
+         ReadNewerFile();
+         CheckNavigator();
+         XPathResult[] ret = null;
+         try {
+            XPathNodeIterator nodes = NavigatorSelect(xpath);
+            if (nodes.Count == 0)
+               return null;
+            ret = new XPathResult[nodes.Count];
+            int i = 0;
+            while (nodes.MoveNext())
+               ret[i++] = new XPathResult(nodes.Current.LocalName, nodes.Current.TypedValue);
+         } catch { }
+         return ret;
       }
 
       /// <summary>
@@ -876,14 +1031,14 @@ namespace FSoftUtils {
                      if (attributes != null) {
                         navigator.MoveToFirstChild();
                         while (navigator.MoveToNext(XPathNodeType.Element)) ;    // Simulation: MoveToLastChild()
-                        appendattribut(attributes);
+                        Appendattribut(attributes);
                      }
                   } else {                                        // alter Knoten ex. und soll verwendet werden
                      testnavi.SetValue(nodevalue);
-                     appendattribut(attributes, testnavi);
+                     Appendattribut(attributes, testnavi);
                   }
                } else
-                  appendattribut(attributes);                     // nur Attribute am xpath anfügen/ändern
+                  Appendattribut(attributes);                     // nur Attribute am xpath anfügen/ändern
             }
             return true;
          }
@@ -893,7 +1048,7 @@ namespace FSoftUtils {
       /// <summary>
       /// Zum XPATH wird nebengeordnet ein neuer Knoten davor oder danach eingefügt.
       /// </summary>
-      /// <param name="xpath">XPATH für den neuen Knoten mit Attributen oder XPATH für neue Attribute</param>
+      /// <param name="xpath4node">XPATH für den neuen Knoten mit Attributen oder XPATH für neue Attribute</param>
       /// <param name="nodename">Name des neuen Knotens oder null</param>
       /// <param name="nodevalue">Wert des neuen Knotens oder null</param>
       /// <param name="attributes">Attribut-Werte-Paare (null-Werte werden als leere Zeichenkette interpretiert)</param>
@@ -922,7 +1077,7 @@ namespace FSoftUtils {
                                                 nodevalue);
                   navigator.MoveToPrevious();
                }
-               appendattribut(attributes);
+               Appendattribut(attributes);
             }
             return true;
          }
@@ -968,7 +1123,7 @@ namespace FSoftUtils {
       /// </summary>
       /// <param name="attributes">Attribut-Werte-Paare (null-Werte werden als leere Zeichenkette interpretiert)</param>
       /// <param name="parentnavi">Navigator, an dem die Attribute eingefügt werden sollen oder null für den internen Standardnavigator</param>
-      void appendattribut(Dictionary<string, string> attributes, XPathNavigator parentnavi = null) {
+      void Appendattribut(Dictionary<string, string> attributes, XPathNavigator parentnavi = null) {
          if (attributes != null) {
             if (parentnavi == null)
                parentnavi = navigator;
@@ -992,7 +1147,7 @@ namespace FSoftUtils {
       /// <summary>
       /// löscht alle Nodes und deren untergeordnete Nodes auf die der 'xpath' passt
       /// </summary>
-      /// <param name="path"></param>
+      /// <param name="xpath"></param>
       /// <returns>false, wenn nichts gelöscht wurde</returns>
       public bool Remove(string xpath) {
          CheckNavigator();
@@ -1059,7 +1214,7 @@ namespace FSoftUtils {
       /// <summary>
       /// Knoten oder Attribute ändern auf die der 'xpath' passt
       /// </summary>
-      /// <param name="path">XPath</param>
+      /// <param name="xpath">XPath</param>
       /// <param name="value">neuer Wert</param>
       /// <returns>true, wenn der Wert geändert wurde</returns>
       public bool Change(string xpath, string value) {
@@ -1087,6 +1242,11 @@ namespace FSoftUtils {
        * ACHTUNG!
        * Sonderzeichen (&) usw. müssen NICHT umgewandelt werden.
        */
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <param name="sXPathQueryString"></param>
+      /// <returns></returns>
       public static string GenerateConcatForXPath(string sXPathQueryString) {
          string returnString = string.Empty;
          string searchString = sXPathQueryString;
@@ -1298,18 +1458,19 @@ namespace FSoftUtils {
       /// </summary>
       public string AsFormattedText {
          get {
-            System.Xml.XmlWriterSettings xmlWriterSettings = new System.Xml.XmlWriterSettings();
-            xmlWriterSettings.Encoding = System.Text.Encoding.UTF8;
-            xmlWriterSettings.Indent = true;
-            xmlWriterSettings.IndentChars = " ";
-            xmlWriterSettings.NewLineChars = "\r\n";
-            xmlWriterSettings.NewLineHandling = System.Xml.NewLineHandling.Replace;
-            xmlWriterSettings.NewLineOnAttributes = false;
-            //xmlWriterSettings.OmitXmlDeclaration = true;
-            xmlWriterSettings.ConformanceLevel = System.Xml.ConformanceLevel.Document;
+            XmlWriterSettings xmlWriterSettings = new XmlWriterSettings {
+               Encoding = Encoding.UTF8,
+               Indent = true,
+               IndentChars = " ",
+               NewLineChars = "\r\n",
+               NewLineHandling = NewLineHandling.Replace,
+               NewLineOnAttributes = false,
+               //xmlWriterSettings.OmitXmlDeclaration = true;
+               ConformanceLevel = ConformanceLevel.Document
+            };
 
             using (MemoryStream ms = new MemoryStream()) {
-               using (System.Xml.XmlWriter writer = System.Xml.XmlWriter.Create(ms, xmlWriterSettings)) {
+               using (XmlWriter writer = XmlWriter.Create(ms, xmlWriterSettings)) {
                   Save(writer);
                   writer.Flush();
                   writer.Close();
@@ -1322,6 +1483,10 @@ namespace FSoftUtils {
          }
       }
 
+      /// <summary>
+      /// 
+      /// </summary>
+      /// <returns></returns>
       public override string ToString() {
          return string.Format("{0}, XSD: {1}, Root: {2}", XmlFilename, XsdFilename, Rootname);
       }

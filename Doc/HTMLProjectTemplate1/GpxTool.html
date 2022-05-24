@@ -79,7 +79,7 @@ pre, tt {
      }
   </style></head><body>
 <h1>Anwendung von GpxTool</h1>
-    <span style="font-style: italic;">(Version vom 17.7.2017)</span><br>
+    <span style="font-style: italic;">(Version vom 22.9.2019)</span><br>
 
 <h2>Anwendung</h2>
 
@@ -97,6 +97,10 @@ pre, tt {
           usw.) (Standard: true)</td>
     </tr>
     <tr>
+      <td class="auto-style1">--withsubdirs=arg</td>
+      <td>bei Verwendung von * oder ? werden Eingabedateien auch in Unterverzeichnissen gesucht</td>
+    </tr>
+    <tr>
       <td class="auto-style1">-n,
           --name=arg</td>
       <td>neuer Trackname (mehrfach verwendbar für Track 1 usw.)</td>
@@ -104,38 +108,49 @@ pre, tt {
     <tr>
       <td class="auto-style1">-o,
           --output=arg</td>
-      <td>Name der Ausgabedatei für die (ev. veränderten) GPX-Daten</td>
+      <td>Name der Ausgabedatei für die (ev. veränderten) GPX-Daten (auch KML/KMZ Datei möglich)</td>
+    </tr>
+    <tr>
+      <td class="auto-style1">--overwrite=arg</td>
+      <td>eine ev. schon vorhandene GPX-Datei darf überschrieben werden (ohne arg &#39;true&#39;, Standard &#39;false&#39;)</td>
+    </tr>
+    <tr>
+      <td class="auto-style1">--simplifygpx=arg</td>
+      <td>GPX-Datei vereinfachen (ohne arg &#39;true&#39;, Standard: &#39;false&#39;, bei mehreren Dateien immer true)</td>
     </tr>
     <tr>
       <td class="auto-style1">-f, --formatted=arg</td>
-      <td>Ausgabe formatiert oder &#39;1-zeilig&#39; (Standard: true)</td>
+      <td>Ausgabe formatiert oder &#39;1-zeilig&#39; (ohne arg &#39;true&#39;, Standard: &#39;false&#39;)</td>
     </tr>
      <tr>
       <td class="auto-style1">-t,
           --tracks=arg</td>
-      <td>Liste (mit Komma) der zu verwendenden Tracknummern (1, ...)</td>
+      <td>Liste (mit Komma) der zu verwendenden Tracknummern (1, ...) (Standard: alle)</td>
      </tr>
      <tr>
       <td class="auto-style1">-r, --routes=arg</td>
-      <td>Liste (mit Komma) der zu verwendenden Routennummern (1, ...)</td>
+      <td>Liste (mit Komma) der zu verwendenden Routennummern (1, ...) (Standard: alle)</td>
      </tr>
      <tr>
       <td class="auto-style1">-p, --waypoints=arg</td>
-      <td>Liste (mit Komma) der zu verwendenden Waypoints (1, ...)</td>
+      <td>Liste (mit Komma) der zu verwendenden Waypoints (1, ...) (Standard: alle)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">--segment2track=arg</td>
+      <td>zusätzliche Segmente in eigene Tracks umwandeln (ohne arg &#39;true&#39;, Standard: &#39;false&#39;)</td>
      </tr>
      <tr>
       <td class="auto-style1">--deletetime=arg</td>
-      <td>alle Zeitstempel werden aus den Trackpunkten entfernt</td>
+      <td>alle Zeitstempel werden aus den Trackpunkten entfernt (ohne arg &#39;true&#39;, Standard: &#39;false&#39;)</td>
      </tr>
      <tr>
       <td class="auto-style1">--deleteheight=arg</td>
-      <td>alle Höhenangaben werden aus den Trackpunkten entfernt</td>
+      <td>alle Höhenangaben werden aus den Trackpunkten entfernt (ohne arg &#39;true&#39;, Standard: &#39;false&#39;)</td>
      </tr>
      <tr>
       <td class="auto-style1">-G,
           --gapfill</td>
-      <td>fehlende Höhenwerte und Zeitstempel in den Trackpunkten werden nach Möglichkeit 
-          linear interpoliert (Standard: false)</td>
+      <td>fehlende Höhenwerte und Zeitstempel linear interpolieren (ohne arg &#39;true&#39;, Standard: &#39;false&#39;)</td>
      </tr>
      <tr>
       <td class="auto-style1">-N, --newheigth=arg</td>
@@ -185,8 +200,7 @@ pre, tt {
      </tr>
      <tr>
       <td class="auto-style1">-S, --heightsimplify[=arg]</td>
-      <td>Höhenprofil vereinfachen [mit Algorithmus SlidingIntegral (SI) oder SlidingMean (SM)];
-          setzt intern auch --gapfill</td>
+      <td>Höhenprofil vereinfachen [mit Algorithmus SlidingIntegral (SI) oder SlidingMean (SM)] (Standard: keine)</td>
      </tr>
      <tr>
       <td class="auto-style1">-W,
@@ -206,6 +220,14 @@ pre, tt {
      <tr>
       <td class="auto-style1">--filenametotrackname=arg</td>
       <td>Tracknamen auf den Dateinamen setzen (Standard: false)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">--onefilepertrack=arg</td>
+      <td>jeden Track in einer eigenen Datei ausgeben (Standard: false)</td>
+     </tr>
+     <tr>
+      <td class="auto-style1">--kmltrackdata=arg</td>
+      <td>Farbe und Linienbreite für jeden Track bei KML-Ausgabe (Liste aus jeweils ARGB/RGB-Farbe und Breite)</td>
      </tr>
      <tr>
       <td class="auto-style1">-?,
@@ -354,7 +376,7 @@ pre, tt {
         Beispiel: Höhenglättung</p>
     <p class="code">
         rem ===== SlidingMean mit 5 Punkten<br />
-        gpxtool --heightsimplify=SlidingMean --heightwidth=5 --output=dest.gpx inp1.gpx<br />
+        gpxtool --output=test.kmz heightsimplify=SlidingMean --heightwidth=5 --output=dest.gpx inp1.gpx<br />
         rem ===== SlidingIntegral mit 150m Breite<br />
         gpxtool --heightsimplify --heightwidth=150 --output=dest.gpx inp1.gpx<br />
         rem ===== Höhendatenexport der geglätteten Daten<br />
@@ -370,6 +392,19 @@ pre, tt {
     <p class="code">
         gpxtool 
         --heightoutlierwidth=100 --maxascent=20 --output=dest.gpx inp1.gpx</p>
+    <h2>
+        Daten für KML/KMZ-Ausgabe</h2>
+    <p>
+        Als Argument kann eine Liste aus Farb- und Breitenangaben für Tracks festgelegt werden. Eine Farbe wird entweder als ARGB oder RGB-Wert in Hexadezimalschreibweise mit führendem &#39;#&#39; angegeben. Die Breite ist eine positive ganze Zahl.</p>
+    <p class="beispiel">
+        Beispiel: </p>
+    <p class="code">
+        rem leicht transparentes helles Orange für Track1 (und alle folgenden)<br />
+        gpxtool --output=test.kmz --kmltrackdata=#D0FF8000,4 test.gpx<br />
+        rem leicht transparentes helles Orange für Track1, helles Orange für Track2 (und alle folgenden)<br />
+        gpxtool --output=test.kmz --kmltrackdata=#D0FF8000,4,#FF8000,6 test.gpx<br />
+    <p>
+        &nbsp;</p>
     <h2>
         Verarbeitungsreihenfolge</h2>
     <p>
