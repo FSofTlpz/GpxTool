@@ -538,11 +538,11 @@ namespace GpxTool {
       /// </summary>
       /// <param name="gpxfile"></param>
       /// <param name="onefilepertrack">jeden Track einzeln speichern</param>
-      static void SplitAndSaveGpxfile(GpxFileSpecial gpxfile, 
-                                      bool onefilepertrack, 
-                                      string destfile, 
-                                      bool simplify, 
-                                      bool formated, 
+      static void SplitAndSaveGpxfile(GpxFileSpecial gpxfile,
+                                      bool onefilepertrack,
+                                      string destfile,
+                                      bool simplify,
+                                      bool formated,
                                       int inputcount,
                                       List<Options.KmlTrackData> kmltrackdata) {
          List<GpxFileSpecial> gpxfiles = new List<GpxFileSpecial>() { gpxfile };
@@ -574,9 +574,9 @@ namespace GpxTool {
          SaveGpxfile(gpxfiles, destfiles, simplify, formated, inputcount, kmltrackdata);
       }
 
-      static void SaveGpxfile(List<GpxFileSpecial> gpxfiles, 
-                              List<string> destfiles, 
-                              bool simplify, 
+      static void SaveGpxfile(List<GpxFileSpecial> gpxfiles,
+                              List<string> destfiles,
+                              bool simplify,
                               bool formated,
                               int inputcount,
                               List<Options.KmlTrackData> kmltrackdata) {
@@ -602,6 +602,10 @@ namespace GpxTool {
                               List<Options.KmlTrackData> kmltrackdata) {
          Console.Error.WriteLine("speichere Ergebnis in {0} ...", destfile);
 
+         bool kmz = Path.GetExtension(destfile).ToLower() == ".kmz";
+         bool kml = Path.GetExtension(destfile).ToLower() == ".kml" ||
+                    kmz;
+
          uint[] cola = new uint[kmltrackdata.Count];
          uint[] colr = new uint[kmltrackdata.Count];
          uint[] colg = new uint[kmltrackdata.Count];
@@ -618,8 +622,11 @@ namespace GpxTool {
          if (simplify ||
              gpxfile.InternalGpx == GpxFile.InternalGpxForm.OnlyPoorGpx ||
              inputcount > 1) {
-            gpxfile.SavePoorGpx(destfile, 
-                                formated, 
+            gpxfile.SavePoorGpx(destfile,
+                                null,
+                                formated,
+                                kml,
+                                kmz,
                                 simplify ? 1 : int.MaxValue,
                                 cola,
                                 colr,
@@ -627,8 +634,11 @@ namespace GpxTool {
                                 colb,
                                 width);
          } else {
-            gpxfile.Save(destfile, 
+            gpxfile.Save(destfile,
+                         null,
                          formated,
+                         kml,
+                         kmz,
                          cola,
                          colr,
                          colg,

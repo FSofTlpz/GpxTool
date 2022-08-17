@@ -1,6 +1,6 @@
 ﻿// FSofT, 5.7.2010, ..., 21.9.2020
 
-#define PLATFORM_WINDOWS
+//#define PLATFORM_WINDOWS
 
 /*
 Copyright (C) 2011 Frank Stinner
@@ -974,7 +974,10 @@ namespace FSofTUtils {
                       testopt[sOption.Length + sOptionPrefix.Length] == ':') {
                      testarg = testopt.Substring(sOption.Length + sOptionPrefix.Length + 1);
                      RegisterOption(sOption, false, testarg);
-                  }
+                  } else
+
+                     Parameters.Add(sArgs[pos]);
+
                }
                continue;
 

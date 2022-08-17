@@ -340,21 +340,24 @@ namespace FSofTUtils.Geography {
       /// <param name="filename"></param>
       /// <param name="gpxcreator"></param>
       /// <param name="gpxversion"></param>
-      public GpxFile(string filename, string gpxcreator = "GpxFile", string gpxversion = "1.1") {
+      public GpxFile(string filename,
+                     string gpxcreator = "GpxFile",
+                     string gpxversion = "1.1") {
          this.gpxcreator = gpxcreator;
          this.gpxversion = gpxversion;
-         stdgpx = BuildDummyGpx(filename);
+         stdgpx = buildDummyGpx(filename);
          if (InternalGpx != InternalGpxForm.OnlyNormalGpx)
             poorgpx = new GpxAll();
       }
 
       /// <summary>
-      /// erzeugt eine XML-Basis-Struktur
+      /// erzeugt nur eine XML-Basis-Struktur und registriert ev. schon einen Dateiname
       /// </summary>
-      /// <param name="filename"></param>
+      /// <param name="filename">Dateiname oder null</param>
       /// <returns></returns>
-      SimpleXmlDocument2 BuildDummyGpx(string filename) {
+      SimpleXmlDocument2 buildDummyGpx(string filename) {
          SimpleXmlDocument2 sgpx = new SimpleXmlDocument2(filename, "gpx");
+
          sgpx.CreateInternData();
          sgpx.Validating = false;
          sgpx.XsdFilename = null;
@@ -373,13 +376,17 @@ namespace FSofTUtils.Geography {
          return sgpx;
       }
 
-
       /// <summary>
       /// liest die Datei ein
       /// </summary>
-      public void Read() {
+      /// <param name="inputstream">Falls das Objekt nicht mit einem Dateiname erzeugt wurde, ist hier ein Stream nötig.</param>
+      public void Read(Stream inputstream = null) {
          if (InternalGpx != InternalGpxForm.OnlyPoorGpx) {
-            if (stdgpx.LoadData())
+            if (string.IsNullOrEmpty(stdgpx.XmlFilename) && inputstream == null)
+               throw new ArgumentException("Kein Input-Stream für Read() angegegben.");
+            if (stdgpx.LoadData(string.IsNullOrEmpty(stdgpx.XmlFilename) ?
+                                             null :
+                                             inputstream))
                stdgpx.AddNamespace("x");
          }
 
@@ -396,8 +403,8 @@ namespace FSofTUtils.Geography {
                   break;
 
                case InternalGpxForm.OnlyPoorGpx:
-                  SimpleXmlDocument2 tmpgpx = BuildDummyGpx(Filename);
-                  if (tmpgpx.LoadData()) {
+                  SimpleXmlDocument2 tmpgpx = buildDummyGpx(Filename);
+                  if (tmpgpx.LoadData(inputstream)) {
                      tmpgpx.AddNamespace("x");
                      tmp = tmpgpx.XReadOuterXml("/x:gpx");
                      if (tmp != null)
@@ -415,52 +422,147 @@ namespace FSofTUtils.Geography {
       /// <summary>
       /// speichert die Datei
       /// </summary>
-      /// <param name="filename">neuer Dateiname</param>
-      /// <param name="formatted"></param>
+      /// <param name="filename">neuer Dateiname oder null</param>
+      /// <param name="outputstream">Falls das Objekt nicht mit einem Dateiname erzeugt wurde, ist hier ein Stream nötig.</param>
+      /// <param name="formatted">Ausgabe formatiert</param>
+      /// <param name="kml">KML oder GPX; nur bei Stream verwendet, sonst intern aus dem Dateinamen gesetzt</param>
+      /// <param name="kmz">gezippt oder nicht; nur bei Stream verwendet und nur wenn kml=true</param>
+      /// <param name="kmlcola">A-Komponente der Farben (je Track)</param>
+      /// <param name="kmlcolr">R-Komponente der Farben (je Track)</param>
+      /// <param name="kmlcolg">G-Komponente der Farben (je Track)</param>
+      /// <param name="kmlcolb">B-Komponente der Farben (je Track)</param>
+      /// <param name="kmlwidth">Breite je Track</param>
       public void Save(string filename = null,
+                       Stream outputstream = null,
                        bool formatted = true,
+                       bool kml = false,
+                       bool kmz = false,
                        IList<uint> kmlcola = null,
                        IList<uint> kmlcolr = null,
                        IList<uint> kmlcolg = null,
                        IList<uint> kmlcolb = null,
                        IList<uint> kmlwidth = null) {
-         if (Path.GetExtension(filename).ToLower() == ".kml" ||
-             Path.GetExtension(filename).ToLower() == ".kmz")
-            new GpxFile2KmlWriter().Write_gdal(filename, this, formatted, kmlcola, kmlcolr, kmlcolg, kmlcolb, kmlwidth);
-         else
-            stdgpx.SaveData(filename, formatted);
+         save(filename,
+              outputstream,
+              formatted,
+              kml,
+              kmz,
+              int.MaxValue,
+              kmlcola,
+              kmlcolr,
+              kmlcolg,
+              kmlcolb,
+              kmlwidth);
       }
 
       /// <summary>
-      /// speichert die Poor-Datei
+      /// speichert (wenn möglich) die Poor-Datei
       /// </summary>
       /// <param name="filename"></param>
+      /// <param name="outputstream"></param>
       /// <param name="formatted"></param>
+      /// <param name="kml">KML oder GPX; nur bei Stream verwendet, sonst intern aus dem Dateinamen gesetzt</param>
+      /// <param name="kmz">gezippt oder nicht; nur bei Stream verwendet und nur wenn kml=true</param>
       /// <param name="scale"></param>
+      /// <param name="kmlcola">A-Komponente der Farben (je Track)</param>
+      /// <param name="kmlcolr">R-Komponente der Farben (je Track)</param>
+      /// <param name="kmlcolg">G-Komponente der Farben (je Track)</param>
+      /// <param name="kmlcolb">B-Komponente der Farben (je Track)</param>
+      /// <param name="kmlwidth">Breite je Track</param>
       public void SavePoorGpx(string filename = null,
+                              Stream outputstream = null,
                               bool formatted = true,
+                              bool kml = false,
+                              bool kmz = false,
                               int scale = int.MaxValue,
                               IList<uint> kmlcola = null,
                               IList<uint> kmlcolr = null,
                               IList<uint> kmlcolg = null,
                               IList<uint> kmlcolb = null,
                               IList<uint> kmlwidth = null) {
-         if (poorgpx != null) {
-            if (Path.GetExtension(filename).ToLower() == ".kml" ||
-                Path.GetExtension(filename).ToLower() == ".kmz")
-               new GpxFile2KmlWriter().Write_gdal(filename, this, formatted, kmlcola, kmlcolr, kmlcolg, kmlcolb, kmlwidth);
-            else {
+         if (poorgpx != null)
+            save(filename,
+                 outputstream,
+                 formatted,
+                 kml,
+                 kmz,
+                 scale,
+                 kmlcola,
+                 kmlcolr,
+                 kmlcolg,
+                 kmlcolb,
+                 kmlwidth);
+      }
+
+      /// <summary>
+      /// speichert die Poor-Datei
+      /// </summary>
+      /// <param name="filename"></param>
+      /// <param name="outputstream"></param>
+      /// <param name="formatted"></param>
+      /// <param name="kml">KML oder GPX; nur bei Stream verwendet, sonst intern aus dem Dateinamen gesetzt</param>
+      /// <param name="kmz">gezippt oder nicht; nur bei Stream verwendet und nur wenn kml=true</param>
+      /// <param name="scale"></param>
+      /// <param name="kmlcola">A-Komponente der Farben (je Track)</param>
+      /// <param name="kmlcolr">R-Komponente der Farben (je Track)</param>
+      /// <param name="kmlcolg">G-Komponente der Farben (je Track)</param>
+      /// <param name="kmlcolb">B-Komponente der Farben (je Track)</param>
+      /// <param name="kmlwidth">Breite je Track</param>
+      void save(string filename = null,
+                Stream outputstream = null,
+                bool formatted = true,
+                bool kml = false,
+                bool kmz = false,
+                int scale = int.MaxValue,
+                IList<uint> kmlcola = null,
+                IList<uint> kmlcolr = null,
+                IList<uint> kmlcolg = null,
+                IList<uint> kmlcolb = null,
+                IList<uint> kmlwidth = null) {
+         bool isFile = !string.IsNullOrEmpty(filename);
+
+         if (isFile) {
+            kmz = Path.GetExtension(filename).ToLower() == ".kmz";
+            kml = Path.GetExtension(filename).ToLower() == ".kml" ||
+                  kmz;
+         }
+
+         if (kml)
+            new GpxFile2KmlWriter().Write_gdal(filename,
+                                               outputstream,
+                                               this,                    // FALSCH ?
+                                               formatted,
+                                               kmz,
+                                               kmlcola,
+                                               kmlcolr,
+                                               kmlcolg,
+                                               kmlcolb,
+                                               kmlwidth);
+         else {
+
+            if (scale == int.MaxValue) {
+
+               stdgpx.SaveData(isFile ? filename : null,
+                               formatted,
+                               outputstream);
+
+            } else if (poorgpx != null) {
+
                SimpleXmlDocument2 tmp = stdgpx;
-               stdgpx = BuildDummyGpx(string.IsNullOrEmpty(filename) ? Filename : filename);
+               stdgpx = buildDummyGpx(string.IsNullOrEmpty(filename) ? Filename : filename);
 
                string xml = poorgpx.AsXml(scale);
                xml = xml.Substring(5, xml.Length - 11);
                stdgpx.InsertXmlText(XPaths.Master(),
                                      xml,
                                      SimpleXmlDocument2.InsertPosition.AppendChild);
-               stdgpx.SaveData(filename, formatted);
+
+               stdgpx.SaveData(isFile ? filename : null,
+                               formatted,
+                               outputstream);
 
                stdgpx = tmp;
+
             }
          }
       }

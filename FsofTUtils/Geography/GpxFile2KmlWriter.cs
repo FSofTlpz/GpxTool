@@ -63,16 +63,20 @@ namespace FSofTUtils.Geography {
       /// schreibt eine KML-Datei in der Form von GDAL; dabei fehlt leider die Zeit für die Trackpunkte
       /// </summary>
       /// <param name="filename"></param>
+      /// <param name="outputstream">Falls kein Dateiname angegeben ist, ist hier ein Stream nötig.</param>
       /// <param name="gpx"></param>
       /// <param name="formatted"></param>
+      /// <param name="zipped"></param>
       /// <param name="cola"></param>
       /// <param name="colr"></param>
       /// <param name="colg"></param>
       /// <param name="colb"></param>
       /// <param name="width"></param>
       public void Write_gdal(string filename,
+                             Stream outputstream,
                              GpxFile gpx,
                              bool formatted,
+                             bool zipped,
                              IList<uint> cola,
                              IList<uint> colr,
                              IList<uint> colg,
@@ -127,7 +131,8 @@ namespace FSofTUtils.Geography {
             insertWaypoint_gdal(gpx.GetWaypoint(w));
 
          writekml(filename,
-                  Path.GetExtension(filename).ToLower() == ".kmz",
+                  outputstream,
+                  zipped,
                   formatted);
       }
 
@@ -461,15 +466,30 @@ namespace FSofTUtils.Geography {
 
 
       /// <summary>
-      /// schreibt die KML-Daten als Datei
+      /// schreibt die KML-Daten als Datei (oder in einen Stream)
       /// </summary>
       /// <param name="filename"></param>
+      /// <param name="outputstream">Falls kein Dateiname angegeben ist, ist hier ein Stream nötig.</param>
       /// <param name="zipped"></param>
       /// <param name="formatted"></param>
-      void writekml(string filename, bool zipped, bool formatted) {
+      void writekml(string filename,
+                    Stream outputstream,
+                    bool zipped,
+                    bool formatted) {
          if (zipped) {
-            using (FileStream zipstream = new FileStream(filename, FileMode.Create)) {
-               using (ZipArchive archive = new ZipArchive(zipstream, ZipArchiveMode.Update)) {
+
+            bool isFile = !string.IsNullOrEmpty(filename);
+            if (isFile) {
+               using (FileStream filestream = new FileStream(filename, FileMode.Create)) {
+                  using (ZipArchive archive = new ZipArchive(filestream, ZipArchiveMode.Update)) {
+                     ZipArchiveEntry file = archive.CreateEntry(defaultKmlFilename);
+                     using (Stream writer = file.Open()) {
+                        kml.SaveData(null, true, writer);
+                     }
+                  }
+               }
+            } else {
+               using (ZipArchive archive = new ZipArchive(outputstream, ZipArchiveMode.Update, true)) {
                   ZipArchiveEntry file = archive.CreateEntry(defaultKmlFilename);
                   using (Stream writer = file.Open()) {
                      kml.SaveData(null, true, writer);
@@ -477,7 +497,7 @@ namespace FSofTUtils.Geography {
                }
             }
          } else
-            kml.SaveData(filename, formatted);
+            kml.SaveData(null, formatted, outputstream);
       }
 
       /*
